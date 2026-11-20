@@ -22,6 +22,8 @@ echo  5. Всё сразу (2 + 3 + 4)
 echo  6. Запретить игре сбрасывать настройки (lock)
 echo  7. Разрешить запись настроек (unlock)
 echo  8. Откатить последние изменения (restore)
+echo  9. Диагностика, шаг 1: снимок файлов (snapshot)
+echo 10. Диагностика, шаг 2: что поменяла игра (diff)
 echo  0. Выход
 echo.
 set /p c="Выбор: "
@@ -33,6 +35,8 @@ if "%c%"=="5" %PY% motorfest_tweaker.py apply clean_image fps_unlock fov_max
 if "%c%"=="6" %PY% motorfest_tweaker.py lock
 if "%c%"=="7" %PY% motorfest_tweaker.py unlock
 if "%c%"=="8" %PY% motorfest_tweaker.py restore
+if "%c%"=="9" %PY% motorfest_tweaker.py snapshot
+if "%c%"=="10" (%PY% motorfest_tweaker.py diff > diff.txt & type diff.txt)
 if "%c%"=="0" exit /b 0
 echo.
 pause
