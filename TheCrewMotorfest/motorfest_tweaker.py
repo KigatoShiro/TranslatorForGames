@@ -298,6 +298,12 @@ def cmd_scan(cfg: Path, args) -> int:
         for s in items:
             print(f"   {s.key:<55} = {s.value}")
         print()
+    other = [f for f in all_files(cfg).values() if f.suffix.lower() != ".xml"]
+    if other:
+        print("Другие файлы в папке (не XML):")
+        for f in other:
+            print(f"   {f.relative_to(cfg)}  ({f.stat().st_size} байт)")
+        print()
     if args.out:
         lines = []
         for f in sorted(cfg.glob("*.xml")):
@@ -454,6 +460,64 @@ def cmd_lock(cfg: Path, args, ro: bool) -> int:
     return 0
 
 
+SNAPSHOT_DIR_NAME = "_tweaker_snapshot"
+
+
+def all_files(cfg: Path) -> dict[str, Path]:
+    out = {}
+    for f in cfg.rglob("*"):
+        if f.is_file() and BACKUP_DIR_NAME not in f.parts and SNAPSHOT_DIR_NAME not in f.parts:
+            out[str(f.relative_to(cfg))] = f
+    return out
+
+
+def cmd_snapshot(cfg: Path, args) -> int:
+    dest = cfg / SNAPSHOT_DIR_NAME
+    if dest.exists():
+        shutil.rmtree(dest)
+    files = all_files(cfg)
+    for rel, f in files.items():
+        (dest / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(f, dest / rel)
+    print(f"Снимок сохранён ({len(files)} файлов): {dest}")
+    print("Теперь запустите игру, поменяйте ОДНУ опцию в меню, выйдите из игры и выполните diff.")
+    return 0
+
+
+def cmd_diff(cfg: Path, args) -> int:
+    snap = cfg / SNAPSHOT_DIR_NAME
+    if not snap.is_dir():
+        die("Снимка нет — сначала выполните snapshot.")
+    old = {str(f.relative_to(snap)): f for f in snap.rglob("*") if f.is_file()}
+    new = all_files(cfg)
+    changed = 0
+    for rel in sorted(set(old) | set(new)):
+        a, b = old.get(rel), new.get(rel)
+        if a and not b:
+            print(f"- удалён файл: {rel}"); changed += 1; continue
+        if b and not a:
+            print(f"+ новый файл: {rel}"); changed += 1; continue
+        if a.read_bytes() == b.read_bytes():
+            continue
+        changed += 1
+        print(f"* изменён файл: {rel}")
+        if rel.lower().endswith(".xml"):
+            sa = {(s.key, i): s.value for i, s in enumerate(iter_settings(XmlFile.load(a)))}
+            sb = {(s.key, i): s.value for i, s in enumerate(iter_settings(XmlFile.load(b)))}
+            ka = {k for k, _ in sa}; kb = {k for k, _ in sb}
+            da = {k: v for (k, _), v in sa.items()}; db = {k: v for (k, _), v in sb.items()}
+            for k in sorted(ka | kb):
+                if da.get(k) != db.get(k):
+                    print(f"    {k:<50} {da.get(k)} -> {db.get(k)}")
+        else:
+            print(f"    (не XML, {a.stat().st_size} -> {b.stat().st_size} байт; содержимое бинарное/зашифрованное)")
+    if not changed:
+        print("Ни один файл в этой папке не изменился.\n"
+              "Значит, игра хранит эту настройку в другом месте (облако Ubisoft / реестр / другая папка) —\n"
+              "файловый мод для неё не сработает.")
+    return 0
+
+
 # --------------------------------------------------------------------------- #
 def die(msg: str) -> None:
     print(msg, file=sys.stderr)
@@ -496,6 +560,8 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("lock", help="запретить игре перезаписывать конфиги")
     sub.add_parser("unlock", help="снять запрет записи")
     sub.add_parser("presets", help="список пресетов")
+    sub.add_parser("snapshot", help="запомнить текущие файлы (перед изменением опции в игре)")
+    sub.add_parser("diff", help="показать, что игра поменяла с момента snapshot")
 
     args = ap.parse_args(argv)
 
@@ -514,6 +580,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_set(cfg, args)
     if args.cmd == "restore":
         return cmd_restore(cfg, args)
+    if args.cmd == "snapshot":
+        return cmd_snapshot(cfg, args)
+    if args.cmd == "diff":
+        return cmd_diff(cfg, args)
     if args.cmd == "lock":
         return cmd_lock(cfg, args, True)
     if args.cmd == "unlock":

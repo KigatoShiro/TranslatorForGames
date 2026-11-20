@@ -64,5 +64,21 @@ class TweakerTest(unittest.TestCase):
         self.assertTrue(os.access(self.cfg, os.W_OK))
 
 
+class DiffTest(TweakerTest):
+    def test_snapshot_diff(self):
+        import io, contextlib
+        self.run_cli("snapshot")
+        t = self.cfg.read_text("utf-8-sig").replace('FrameRateLimit="60"', 'FrameRateLimit="144"')
+        self.cfg.write_text(t, "utf-8-sig")
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.run_cli("diff")
+        out = buf.getvalue()
+        self.assertIn("GameSettings.xml", out)
+        self.assertIn("Graphics.FrameRateLimit", out)
+        self.assertIn("60 -> 144", out)
+        self.assertNotIn("Bindings", out)
+
+
 if __name__ == "__main__":
     unittest.main()
