@@ -1,0 +1,7 @@
+{
+  "description": "Снять ограничение FPS и выключить V-Sync (ограничивайте FPS драйвером)",
+  "rules": [
+    {"label": "V-Sync",    "match": ["VSync", "VerticalSync", "WaitForVBlank"], "value": "off"},
+    {"label": "FPS limit", "match": ["FrameRateLimit", "FramerateLimit", "FpsLimit", "MaxFps", "FpsCap", "FrameLimit", "TargetFramerate"], "value": 0}
+  ]
+}

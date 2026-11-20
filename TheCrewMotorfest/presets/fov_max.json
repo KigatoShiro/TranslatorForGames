@@ -1,0 +1,6 @@
+{
+  "description": "Максимальный угол обзора (если параметр FOV есть в конфиге). Значение можно поменять в файле",
+  "rules": [
+    {"label": "FOV", "match": ["FieldOfView", "FOV"], "value": 1.0, "exclude": ["min", "max", "default"]}
+  ]
+}

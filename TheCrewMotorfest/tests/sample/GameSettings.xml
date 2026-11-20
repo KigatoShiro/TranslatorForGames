@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- fake sample for tests MotionBlur="1" -->
+<Settings>
+  <Graphics MotionBlur="true" ChromaticAberration="1" DepthOfField="2" VSync="True" FrameRateLimit="60"/>
+  <PostFx>
+    <FilmGrain>1</FilmGrain>
+    <Option Name="Vignette" Value="On"/>
+    <Option Name="Denoiser" Value="1"/>
+  </PostFx>
+  <Camera FieldOfView="0.500" FovMin="0.0" FovMax="1.0"/>
+</Settings>

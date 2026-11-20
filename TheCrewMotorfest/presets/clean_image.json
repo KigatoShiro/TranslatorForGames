@@ -1,0 +1,12 @@
+{
+  "description": "Чистая картинка: выкл. размытие в движении, хром. аберрацию, зерно, виньетку, DOF, искажения линз",
+  "rules": [
+    {"label": "Motion blur",          "match": ["MotionBlur", "MBlur", "RadialBlur", "SpeedBlur"], "value": "off"},
+    {"label": "Chromatic aberration", "match": ["ChromaticAberration", "ChromaAberration", "Chromatic"], "value": "off"},
+    {"label": "Film grain",           "match": ["FilmGrain", "Grain"], "value": "off"},
+    {"label": "Vignette",             "match": ["Vignette", "Vignetting"], "value": "off"},
+    {"label": "Depth of field",       "match": ["DepthOfField", "DOF", "Bokeh"], "value": "off"},
+    {"label": "Lens distortion",      "match": ["LensDistortion", "LensDirt", "LensFlare"], "value": "off"},
+    {"label": "Camera shake",         "match": ["CameraShake", "ScreenShake", "SpeedShake"], "value": "off"}
+  ]
+}

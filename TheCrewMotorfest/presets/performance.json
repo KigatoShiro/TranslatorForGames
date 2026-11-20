@@ -1,0 +1,11 @@
+{
+  "description": "Убрать тяжёлые эффекты пост-обработки (Clean image + выкл. объёмный туман и SSR-шум)",
+  "rules": [
+    {"label": "Motion blur",          "match": ["MotionBlur"], "value": "off"},
+    {"label": "Chromatic aberration", "match": ["ChromaticAberration", "Chromatic"], "value": "off"},
+    {"label": "Depth of field",       "match": ["DepthOfField", "DOF"], "value": "off"},
+    {"label": "Film grain",           "match": ["FilmGrain"], "value": "off"},
+    {"label": "Lens flare",           "match": ["LensFlare"], "value": "off"},
+    {"label": "Volumetric fog",       "match": ["VolumetricFog", "VolumetricLight"], "value": "off"}
+  ]
+}
